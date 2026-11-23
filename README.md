@@ -21,3 +21,6 @@ mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 The agent researched the day's headlines across Reuters, AP, DW, Al Jazeera, The Hindu, the Indian Express, News9live and other outlets, laid the stories out as an HTML front page, rendered it in a browser at 1024×1024, and screenshotted the result. Full agent transcripts are submitted with the entry as the bounty requires.
 
 Entry for [make.fun bounty "Sum up 23 November's world news in one image"](https://make.fun/bounty/news-image-20261123) — $250 in USDC, paid on Solana.
+
+The front page runs on a strict 1024×1024 canvas (the judge's dimension cap) and is compressed to JPEG quality 88 to stay far under the 1 MiB entry cap; `main.ts` re-checks the size at run time so a bad render can never reach the grader.
+

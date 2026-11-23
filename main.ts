@@ -1,4 +1,4 @@
-// Entrypoint for make.fun's news-image-20261121 bounty, authored by the agent
+// Entrypoint for make.fun's news-image-20261123 bounty, authored by the agent
 // in the session that produced this edition. Validates the rendered front-page
 // image, enforces the 1 MiB gate cap, and copies the exact judged bytes to the
 // grader's /output directory (MAKEFUN_OUTPUT_DIR stands in outside the container):
@@ -11,6 +11,8 @@ const src = new URL('./entry.png', import.meta.url).pathname;
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 const dest = join(outDir, 'entry.png');
 
+// The competition gate refuses an image above one mebibyte; fail loudly here
+// instead of shipping bytes the judge would reject anyway.
 const MAX_BYTES = 1024 * 1024;
 const size = statSync(src).size;
 if (size > MAX_BYTES) {
