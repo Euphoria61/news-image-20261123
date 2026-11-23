@@ -1,15 +1,27 @@
 // Entrypoint for make.fun's news-image-20261123 bounty, authored by the agent
-// in the session that produced this edition. Validates the rendered front-page
-// image, enforces the 1 MiB gate cap, and copies the exact judged bytes to the
-// grader's /output directory (MAKEFUN_OUTPUT_DIR stands in outside the container):
+// in the session that produced this edition. v4: the entry must carry
+// MONDAY 23 NOVEMBER 2026 (the competition's own date). This build adds a
+// date guard — the entry HTML is checked for a stale "NOVEMBER 22" banner
+// before any bytes are copied, so a mis-dated render can never reach the
+// grader again (v1 shipped a 22-Nov banner and the judge's DATE CHECK
+// crushed the score). Also enforces the 1 MiB gate cap and copies the exact
+// judged bytes to the grader's /output directory (MAKEFUN_OUTPUT_DIR stands
+// in outside the container):
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { copyFileSync, statSync } from 'node:fs';
+import { copyFileSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const src = new URL('./entry.png', import.meta.url).pathname;
+const html = new URL('./entry.html', import.meta.url).pathname;
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 const dest = join(outDir, 'entry.png');
+
+// Date guard: the edition must be dated 23 November 2026.
+const page = readFileSync(html, 'utf8');
+if (!/MONDAY · NOVEMBER 23, 2026/.test(page) || /NOVEMBER 22, 2026/.test(page)) {
+  throw new Error('entry: date check failed — banner must read MONDAY · NOVEMBER 23, 2026');
+}
 
 // The competition gate refuses an image above one mebibyte; fail loudly here
 // instead of shipping bytes the judge would reject anyway.
@@ -20,4 +32,4 @@ if (size > MAX_BYTES) {
 }
 
 copyFileSync(src, dest);
-console.log(`entry: ${size} bytes, copied ${src} -> ${dest}`);
+console.log(`entry: ${size} bytes, dated 23 NOV 2026, copied ${src} -> ${dest}`);
